@@ -38,12 +38,14 @@ values."
      python
      csv
      semantic
+     (syntax-checking
+      :variables
+      syntax-checking-enable-tooltips nil
+      syntax-checking-enable-by-default t)
      c-c++
      remote-edit
      ;;(c-c++ :variables
      ;;       c-c++-enable-clang-support t)
-     (syntax-checking
-       :variables syntax-checking-enable-tooltips nil)
      rtags
      ;;gtags
      ;; (smart-tabs
@@ -326,6 +328,8 @@ you should place your code here."
 
   (modify-syntax-entry ?_ "w" c-mode-syntax-table)
   ;;(modify-syntax-entry ?_ "w" python-mode-syntax-table)
+
+  (add-hook 'c-mode-common-hook 'flycheck-mode)
   )
 
 (defun getenv-or (env value)

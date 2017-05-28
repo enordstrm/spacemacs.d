@@ -14,7 +14,6 @@
           ;;rtags-verbose-results t ;; Actually slows less, bug?
           rtags-rdm-process-use-pipe nil
           rtags-diagnostics-use-pipe nil
-          ;;rtags-rc-log-enabled t
           rtags-tramp-enabled t)
     ; See https://github.com/Andersbakken/rtags/issues/832
     (require 'company-rtags)
@@ -23,6 +22,9 @@
           company-backends-c-mode-common)
     (rtags-enable-standard-keybindings)
     (rtags-diagnostics)
+
+    ; Disable this function in order to resolve tramp issue
+    (defun rtags-update-current-project ())
 
     ; Useful if running locally, but start is manually due to remote-edit
     ;;(add-hook 'c-mode-common-hook 'rtags-start-process-unless-running)
