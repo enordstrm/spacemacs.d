@@ -1,11 +1,6 @@
-;;; packages.el --- rtags layer packages file for Spacemacs.
-;;
-;; Copyright (c) 2017 Eric Nordström
-;;
-;; Author: Eric Nordström <eric@nrdstrm.org>
-;;
-;; This file is not part of GNU Emacs.
-;;; keybindings.el
+;;; keybindings.el ---                               -*- lexical-binding: t; -*-
+;;; Commentary:
+;;; Code:
 
 (defconst rtags-overrides
   '(("C-]" 'rtags-find-symbol-at-point)
