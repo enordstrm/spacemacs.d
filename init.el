@@ -39,6 +39,7 @@ values."
      csv
      semantic
      c-c++
+     remote-edit
      ;;(c-c++ :variables
      ;;       c-c++-enable-clang-support t)
      (syntax-checking
@@ -258,6 +259,45 @@ before packages are loaded. If you are unsure, you should try in setting them in
 
   (push "~/.spacemacs.d/themes/" custom-theme-load-path)
 
+  ;;; (Directories) ;;;
+  (defconst *user-home-directory*
+    (getenv-or "HOME" (concat (expand-file-name "~") "/"))
+    "Path to user home directory.")
+  (defconst *user-local-directory*
+    (if (getenv "XDG_DATA_HOME")
+        (path-dirname (getenv "XDG_DATA_HOME"))
+      (path-join *user-home-directory* ".local"))
+    "Path to user's local store.")
+  (defconst *user-config-directory*
+    (path-join (getenv-or "XDG_CONFIG_HOME"
+                          (path-join *user-home-directory* ".config"))
+               "emacs")
+    "Path to user's local cache store.")
+  (defconst *user-data-directory*
+    (path-join (getenv-or "XDG_DATA_HOME"
+                          (path-join *user-local-directory* "share"))
+               "emacs")
+    "Path to user's local data store.")
+  (defconst *user-cache-directory*
+    (path-join (getenv-or "XDG_CACHE_HOME"
+                          (path-join *user-home-directory* ".cache"))
+               "emacs")
+    "Path to user's local cache store.")
+  (defconst *user-documents-directory*
+    (path-join *user-home-directory* "Documents")
+    "Path to user's documents directory.")
+
+  (defconst *user-el-get-directory*
+    (path-join user-emacs-directory "el-get")
+    "Path to user's el-get store.")
+  (defconst *user-local-init*
+    (path-join *user-home-directory* ".emacs.local.el")
+    "Path to user's machine-local configuration file.")
+
+  ;; Set up the autosaves directory.
+  (defconst *user-auto-save-directory* (path-join *user-cache-directory* "auto-saves"))
+  ;; Emacs will create the backup dir automatically, but not the autosaves dir.
+
   ;; tabs are spaces
   (setq-default indent-tabs-mode nil
                 tab-width 4
@@ -285,8 +325,23 @@ you should place your code here."
         projectile-enable-caching t)
 
   (modify-syntax-entry ?_ "w" c-mode-syntax-table)
-  (modify-syntax-entry ?_ "w" python-mode-syntax-table)
+  ;;(modify-syntax-entry ?_ "w" python-mode-syntax-table)
   )
+
+(defun getenv-or (env value)
+  "Fetch the value of ENV or, if it is not set, return VALUE."
+  (if (getenv env)
+      (getenv env)
+    value))
+
+(defun path-join (root &rest dirs)
+  "Join paths together starting at ROOT and proceeding with DIRS.
+Ex: (path-join \"/tmp\" \"a\" \"b\" \"c\") => /tmp/a/b/c"
+  (if (not dirs)
+      root
+    (apply 'path-join
+           (expand-file-name (car dirs) root)
+           (cdr dirs))))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -295,7 +350,7 @@ you should place your code here."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (atom-one-light-theme company-rtags spinner alert log4e powerline org gntp markdown-mode hydra parent-mode projectile request gitignore-mode fringe-helper git-gutter+ git-gutter flycheck pkg-info epl flx magit magit-popup git-commit with-editor smartparens iedit anzu evil goto-chg undo-tree highlight diminish pos-tip company bind-map bind-key yasnippet packed anaconda-mode pythonic f dash s helm avy helm-core async auto-complete popup package-build define-word yapfify xterm-color ws-butler window-numbering which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org stickyfunc-enhance srefactor spacemacs-theme spaceline smeargle shell-pop rtags reveal-in-osx-finder restart-emacs rainbow-delimiters quelpa pyvenv pytest pyenv-mode py-isort popwin pip-requirements persp-mode pcre2el pbcopy paradox ox-gfm osx-trash osx-dictionary orgit org-projectile org-present org-pomodoro org-plus-contrib org-download org-bullets open-junk-file neotree mwim multi-term move-text mmm-mode markdown-toc magit-gitflow macrostep lorem-ipsum live-py-mode linum-relative link-hint launchctl info+ indent-guide ido-vertical-mode hy-mode hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-pydoc helm-projectile helm-mode-manager helm-make helm-gtags helm-gitignore helm-flx helm-descbinds helm-company helm-c-yasnippet helm-ag google-translate golden-ratio gnuplot gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md ggtags flycheck-pos-tip flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help elisp-slime-nav dumb-jump disaster diff-hl cython-mode csv-mode company-statistics company-quickhelp company-c-headers company-anaconda column-enforce-mode cmake-mode clean-aindent-mode clang-format auto-yasnippet auto-highlight-symbol auto-compile atom-one-dark-theme aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell))))
+    (quelpa-use-package atom-one-light-theme company-rtags spinner alert log4e powerline org gntp markdown-mode hydra parent-mode projectile request gitignore-mode fringe-helper git-gutter+ git-gutter flycheck pkg-info epl flx magit magit-popup git-commit with-editor smartparens iedit anzu evil goto-chg undo-tree highlight diminish pos-tip company bind-map bind-key yasnippet packed anaconda-mode pythonic f dash s helm avy helm-core async auto-complete popup package-build define-word yapfify xterm-color ws-butler window-numbering which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org stickyfunc-enhance srefactor spacemacs-theme spaceline smeargle shell-pop rtags reveal-in-osx-finder restart-emacs rainbow-delimiters quelpa pyvenv pytest pyenv-mode py-isort popwin pip-requirements persp-mode pcre2el pbcopy paradox ox-gfm osx-trash osx-dictionary orgit org-projectile org-present org-pomodoro org-plus-contrib org-download org-bullets open-junk-file neotree mwim multi-term move-text mmm-mode markdown-toc magit-gitflow macrostep lorem-ipsum live-py-mode linum-relative link-hint launchctl info+ indent-guide ido-vertical-mode hy-mode hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-pydoc helm-projectile helm-mode-manager helm-make helm-gtags helm-gitignore helm-flx helm-descbinds helm-company helm-c-yasnippet helm-ag google-translate golden-ratio gnuplot gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md ggtags flycheck-pos-tip flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help elisp-slime-nav dumb-jump disaster diff-hl cython-mode csv-mode company-statistics company-quickhelp company-c-headers company-anaconda column-enforce-mode cmake-mode clean-aindent-mode clang-format auto-yasnippet auto-highlight-symbol auto-compile atom-one-dark-theme aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
